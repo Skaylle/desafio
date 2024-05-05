@@ -13,6 +13,11 @@ class Model
      */
     protected string $table;
 
+    /**
+     * @var array
+     */
+    protected array $fillable;
+
     public function all()
     {
         $db = DB::connect();
@@ -29,31 +34,36 @@ class Model
 
     public function create(array $data)
     {
+        $data = array_intersect_key($data, array_flip($this->fillable));
+
         $data = array_merge($data, ["created_at" => date('Y-m-d H:i:s')]);
         $columns = implode(', ', array_keys($data));
         $values = ':' . implode(', :', array_keys($data));
 
         try {
-        $db = DB::connect();
-        $sql = "INSERT INTO {$this->table} ($columns) VALUES ($values)";
-        $stmt = $db->prepare($sql);
+            $db = DB::connect();
+            $sql = "INSERT INTO {$this->table} ($columns) VALUES ($values)";
+            $stmt = $db->prepare($sql);
 
-        foreach ($data as $chive => $valor) {
-            $stmt->bindValue(":$chive", $valor);
-        }
+            foreach ($data as $chive => $valor) {
+                $stmt->bindValue(":$chive", $valor);
+            }
 
-        $stmt->execute();
+            $stmt->execute();
 
-        return $this->find($db->lastInsertId());
+            return $this->find($db->lastInsertId());
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            var_dump($e->getMessage());
+           // echo json_encode(['error' => $e->getMessage()]);
             exit();
         }
     }
 
     public function update(int $id, array $data)
     {
+        $data = array_intersect_key($data, array_flip($this->fillable));
+
         $data = array_merge($data, ["updated_at" => date('Y-m-d H:i:s')]);
         try {
             $db = DB::connect();

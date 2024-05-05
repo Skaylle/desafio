@@ -14,9 +14,12 @@ class TransactionService
      */
     protected Transaction $model;
 
+    protected TransactionItemService $transactionItemService;
+
     public function __construct()
     {
        $this->model = new Transaction();
+       $this->transactionItemService = new TransactionItemService();
     }
 
     public function index()
@@ -31,8 +34,10 @@ class TransactionService
 
     public function create(array $data)
     {
-        $this->ProductCalculator($data);
-        return $this->model->create($data);
+        $transaction = $this->model->create($data);
+        $this->transactionItem($data, $transaction['id']);
+
+        return $transaction;
     }
 
     public function update($id, array $data)
@@ -45,24 +50,15 @@ class TransactionService
         return $this->model->destroy($id);
     }
 
-    public function ProductCalculator($data)
+    public function transactionItem($data, $id)
     {
-        $product = (new \App\Model\Product)->find($data['product_id']);
-        $type = (new \App\Model\ProductType)->find($product['product_type_id']);
-        $tax = (new \App\Model\Tax)->find($type['tax_id']);
-        $quantidade = 2;
-
-        $vrTotalProduto = $product['valor'] * $quantidade;
-        $valorTax = $product['valor'] * ($tax['percent'] / 100);
-
-
-        var_dump('Produto', $product['valor'] , ' ');
-        var_dump('Imposto', $tax['percent'] , ' ');
-        var_dump('Total Produto', $vrTotalProduto, ' ');
-        var_dump('Total Imposto', $valorTax, ' ');
-        var_dump('Toal Venda', $vrTotalProduto + $valorTax, ' ');
-
-
-       die;
+        foreach ($data['transaction'] as $transaction) {
+            if($transaction['transaction_item_id']) {
+                $this->transactionItemService->update($transaction['transaction_item_id'], $transaction);
+            }else{
+                $transaction['transaction_id'] = $id;
+                $this->transactionItemService->create($transaction);
+            }
+        }
     }
 }
