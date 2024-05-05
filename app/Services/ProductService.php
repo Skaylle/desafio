@@ -16,7 +16,7 @@ class ProductService
 
     public function __construct()
     {
-       $this->model = new Product(DB::connect());
+       $this->model = new Product();
     }
 
     public function index()

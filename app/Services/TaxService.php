@@ -15,7 +15,7 @@ class TaxService
 
     public function __construct()
     {
-       $this->model = new Tax(DB::connect());
+       $this->model = new Tax();
     }
 
     public function index()

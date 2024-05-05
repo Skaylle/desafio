@@ -20,21 +20,19 @@ class Model
 
     protected PDO $pdo;
 
-    public function __construct(PDO $pdo)
+    public function __construct(PDO $pdo = null)
     {
-        $this->pdo = $pdo;
+        $this->pdo = $pdo ?? DB::connect();
     }
 
     public function all()
     {
-        $db = DB::connect();
-        $stmt = $db->query("SELECT * FROM {$this->table}");
+        $stmt = $this->pdo->query("SELECT * FROM {$this->table}");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function find($id)
     {
-        $db = DB::connect();
         $stmt = $this->pdo->query("SELECT * FROM {$this->table} where id = {$id}");
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -48,7 +46,6 @@ class Model
         $values = ':' . implode(', :', array_keys($data));
 
         try {
-           ;; $db = DB::connect();
             $sql = "INSERT INTO {$this->table} ($columns) VALUES ($values)";
             $stmt = $this->pdo->prepare($sql);
 
@@ -72,7 +69,6 @@ class Model
 
         $data = array_merge($data, ["updated_at" => date('Y-m-d H:i:s')]);
         try {
-            $db = DB::connect();
             $column_values = '';
             foreach ($data as $column => $value) {
                 $column_values .= "$column = :$column, ";
@@ -80,7 +76,7 @@ class Model
             $column_values = rtrim($column_values, ', ');
 
             $sql = "UPDATE {$this->table} SET $column_values WHERE id = {$id}";
-            $stmt = $db->prepare($sql);
+            $stmt = $this->pdo->prepare($sql);
 
             foreach ($data as $column => $value) {
                 $stmt->bindValue(":$column", $value);
@@ -98,9 +94,8 @@ class Model
     public function destroy(int $id): bool
     {
         try {
-            $db = DB::connect();
             $sql = "DELETE FROM {$this->table} WHERE id = {$id}";
-            $stmt = $db->prepare($sql);
+            $stmt = $this->pdo->prepare($sql);
             $stmt->execute();
 
             return true;
@@ -113,8 +108,7 @@ class Model
 
     public function count(): int
     {
-        $db = DB::connect();
-        $stmt = $db->query("SELECT COUNT(*) FROM {$this->table}");
+        $stmt = $this->pdo->query("SELECT COUNT(*) FROM {$this->table}");
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($result['count']) {
