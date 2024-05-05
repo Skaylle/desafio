@@ -18,9 +18,6 @@ class Model
      */
     protected array $fillable;
 
-    /**
-     * @var PDO
-     */
     protected PDO $pdo;
 
     public function __construct(PDO $pdo)
@@ -38,7 +35,7 @@ class Model
     public function find($id)
     {
         $db = DB::connect();
-        $stmt = $db->query("SELECT * FROM {$this->table} where id = {$id}");
+        $stmt = $this->pdo->query("SELECT * FROM {$this->table} where id = {$id}");
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -51,6 +48,7 @@ class Model
         $values = ':' . implode(', :', array_keys($data));
 
         try {
+           ;; $db = DB::connect();
             $sql = "INSERT INTO {$this->table} ($columns) VALUES ($values)";
             $stmt = $this->pdo->prepare($sql);
 
@@ -74,6 +72,7 @@ class Model
 
         $data = array_merge($data, ["updated_at" => date('Y-m-d H:i:s')]);
         try {
+            $db = DB::connect();
             $column_values = '';
             foreach ($data as $column => $value) {
                 $column_values .= "$column = :$column, ";
@@ -81,7 +80,7 @@ class Model
             $column_values = rtrim($column_values, ', ');
 
             $sql = "UPDATE {$this->table} SET $column_values WHERE id = {$id}";
-            $stmt = $this->pdo->prepare($sql);
+            $stmt = $db->prepare($sql);
 
             foreach ($data as $column => $value) {
                 $stmt->bindValue(":$column", $value);

@@ -5,7 +5,7 @@ namespace App\Services;
 use App\DB;
 use App\Model\Transaction;
 
-class TransactionService
+class TransactionService extends Service
 {
     /**
      * @var Transaction
@@ -16,9 +16,9 @@ class TransactionService
 
     public function __construct()
     {
-       $db = DB::connect();
-       $this->model = new Transaction($db);
-       $this->transactionItemService = new TransactionItemService($db);
+        parent::__construct();
+       $this->model = new Transaction(self::$pdo);
+       //$this->transactionItemService = new TransactionItemService();
     }
 
     public function index()
@@ -33,15 +33,14 @@ class TransactionService
 
     public function create(array $data)
     {
-        $this->model->beginTransaction();
         try {
             $transaction = $this->model->create($data);
-            $this->transactionItem($data, $transaction['id']);
+           // $this->transactionItem($data, $transaction['id']);
 
-            $this->model->commit();
+            $this->commit();
             return $transaction;
         }catch (\Exception $e){
-            $this->model->rollback();
+
         }
     }
 
