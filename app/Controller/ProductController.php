@@ -56,5 +56,7 @@ class ProductController
                 'message' => 'Erro ao validar a dados, verifique todos os campos e tente novamente',
             ];
         }
+
+        return ['success' => true];
     }
 }

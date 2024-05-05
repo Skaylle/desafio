@@ -5,25 +5,25 @@ namespace App\Request;
 use Respect\Validation\Exceptions\ValidationException;
 use Respect\Validation\Validator as v;
 
-class ProductRequest
+class ProductTypeRequest
 {
     public function validation(array $data): array
     {
         $object = json_decode(json_encode($data), false);
 
-        $validator = v::attribute('product_type_id', v::notEmpty()->intType())
+        $validator = v::attribute('tax_id', v::notEmpty()->intType())
+            ->attribute('taxa', v::notEmpty()->positive()->floatVal())
             ->attribute('name', v::notEmpty()->stringType()->length(1, 255))
-            ->attribute('description', v::stringType()->length(1, 500))
-            ->attribute('valor', v::notEmpty()->positive()->floatVal());
+            ->attribute('description', v::stringType()->length(1, 500));
 
         try {
             $validator->assert($object);
            return ['status' => true];
         } catch (ValidationException $e) {
             $errors = [
-                'product_type_id' => [
-                    'notEmpty' => 'product_type_id must not be empty',
-                    'intVal' => 'product_type_id must be an integer'
+                'tax_id' => [
+                    'notEmpty' => 'tax_id must not be empty',
+                    'intVal' => 'tax_id must be an integer'
                 ],
                 'name' => [
                     'notEmpty' => 'name must not be empty',
@@ -32,9 +32,10 @@ class ProductRequest
                 'description' => [
                     'length' => 'description must have a length between 1 and 500'
                 ],
-                'valor' => [
-                    'notEmpty' => 'valor must not be empty',
-                    'floatVal' => 'percent must be a valid decimal number with up to two decimal places and maximum total length of 10 characters'
+                'taxa' => [
+                    'notEmpty' => 'taxa must not be empty',
+                    'floatVal' => 'taxa must be a valid decimal number',
+                    'positive' => 'taxa must be a positive number'
                 ]
             ];
 

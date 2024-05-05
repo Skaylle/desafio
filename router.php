@@ -93,8 +93,8 @@ class Router
                     if (method_exists($controller, 'validate')) {
                         $data = file_get_contents('php://input');
                         $data = json_decode($data, true);
+
                         if (!$controller->validate($data)['success']) {
-                            // Se a validação falhar, retorne uma resposta de erro
                             return $controller->validate($data);
                         }
                     }
