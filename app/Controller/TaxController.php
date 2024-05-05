@@ -6,35 +6,35 @@ use App\Services\TaxService;
 
 class TaxController
 {
-    protected TaxService $product;
+    protected TaxService $service;
 
     public function __construct()
     {
-        $this->product = new TaxService();
+        $this->service = new TaxService();
     }
 
     public function index()
     {
-        return $this->product->index();
+        return $this->service->index();
     }
 
     public function show(int $id)
     {
-        return $this->product->find($id);
+        return $this->service->find($id);
     }
 
     public function store(array $params)
     {
-        return $this->product->create($params);
+        return $this->service->create($params);
     }
 
     public function update(int $id, array $params)
     {
-        return $this->product->update($id, $params);
+        return $this->service->update($id, $params);
     }
 
     public function delete(int $id): bool
     {
-        return $this->product->delete($id);
+        return $this->service->delete($id);
     }
 }

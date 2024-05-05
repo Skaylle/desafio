@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Model\TransactionItem;
+use PDO;
 
 class TransactionItemService
 {
@@ -11,9 +12,9 @@ class TransactionItemService
      */
     protected TransactionItem $model;
 
-    public function __construct()
+    public function __construct($pdo)
     {
-       $this->model = new TransactionItem();
+       $this->model = new TransactionItem($pdo);
     }
 
     public function index()

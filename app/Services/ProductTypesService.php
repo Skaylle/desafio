@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DB;
 use App\Model\ProductType;
 
 class ProductTypesService
@@ -13,7 +14,7 @@ class ProductTypesService
 
     public function __construct()
     {
-       $this->model = new ProductType();
+       $this->model = new ProductType(DB::connect());
     }
 
     public function index()

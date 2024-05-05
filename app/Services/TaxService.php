@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DB;
 use App\Model\Product;
 use App\Model\Tax;
 
@@ -14,7 +15,7 @@ class TaxService
 
     public function __construct()
     {
-       $this->model = new Tax();
+       $this->model = new Tax(DB::connect());
     }
 
     public function index()

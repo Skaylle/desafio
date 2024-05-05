@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DB;
 use App\Model\Product;
 use App\Model\ProductType;
 use http\Exception\BadQueryStringException;
@@ -15,7 +16,7 @@ class ProductService
 
     public function __construct()
     {
-       $this->model = new Product();
+       $this->model = new Product(DB::connect());
     }
 
     public function index()

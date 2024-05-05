@@ -1,4 +1,6 @@
 <?php
+
+use App\DB;
 use App\Router;
 
 require __DIR__ . '/vendor/autoload.php';
@@ -20,6 +22,9 @@ if (file_exists($envFilePath)) {
 }
 
 function handleException($exception) {
+    $db = DB::connect();
+    $db->rollBack();
+
     // Registre a exceção em um arquivo de log
     error_log('Erro não tratado: ' . $exception->getMessage());
 

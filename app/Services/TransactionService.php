@@ -2,9 +2,7 @@
 
 namespace App\Services;
 
-use App\Model\Product;
-use App\Model\ProductType;
-use App\Model\Tax;
+use App\DB;
 use App\Model\Transaction;
 
 class TransactionService
@@ -18,8 +16,9 @@ class TransactionService
 
     public function __construct()
     {
-       $this->model = new Transaction();
-       $this->transactionItemService = new TransactionItemService();
+       $db = DB::connect();
+       $this->model = new Transaction($db);
+       $this->transactionItemService = new TransactionItemService($db);
     }
 
     public function index()
@@ -34,10 +33,16 @@ class TransactionService
 
     public function create(array $data)
     {
-        $transaction = $this->model->create($data);
-        $this->transactionItem($data, $transaction['id']);
+        $this->model->beginTransaction();
+        try {
+            $transaction = $this->model->create($data);
+            $this->transactionItem($data, $transaction['id']);
 
-        return $transaction;
+            $this->model->commit();
+            return $transaction;
+        }catch (\Exception $e){
+            $this->model->rollback();
+        }
     }
 
     public function update($id, array $data)

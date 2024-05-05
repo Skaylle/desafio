@@ -18,6 +18,16 @@ class Model
      */
     protected array $fillable;
 
+    /**
+     * @var PDO
+     */
+    protected PDO $pdo;
+
+    public function __construct(PDO $pdo)
+    {
+        $this->pdo = $pdo;
+    }
+
     public function all()
     {
         $db = DB::connect();
@@ -41,9 +51,8 @@ class Model
         $values = ':' . implode(', :', array_keys($data));
 
         try {
-            $db = DB::connect();
             $sql = "INSERT INTO {$this->table} ($columns) VALUES ($values)";
-            $stmt = $db->prepare($sql);
+            $stmt = $this->pdo->prepare($sql);
 
             foreach ($data as $chive => $valor) {
                 $stmt->bindValue(":$chive", $valor);
@@ -51,11 +60,10 @@ class Model
 
             $stmt->execute();
 
-            return $this->find($db->lastInsertId());
+            return $this->find($this->pdo->lastInsertId());
         } catch (PDOException $e) {
             http_response_code(500);
-            var_dump($e->getMessage());
-           // echo json_encode(['error' => $e->getMessage()]);
+            echo json_encode(['error' => $e->getMessage()]);
             exit();
         }
     }
@@ -66,8 +74,6 @@ class Model
 
         $data = array_merge($data, ["updated_at" => date('Y-m-d H:i:s')]);
         try {
-            $db = DB::connect();
-
             $column_values = '';
             foreach ($data as $column => $value) {
                 $column_values .= "$column = :$column, ";
@@ -75,7 +81,7 @@ class Model
             $column_values = rtrim($column_values, ', ');
 
             $sql = "UPDATE {$this->table} SET $column_values WHERE id = {$id}";
-            $stmt = $db->prepare($sql);
+            $stmt = $this->pdo->prepare($sql);
 
             foreach ($data as $column => $value) {
                 $stmt->bindValue(":$column", $value);
@@ -117,5 +123,20 @@ class Model
         } else {
             return 0;
         }
+    }
+
+    public function beginTransaction()
+    {
+        $this->pdo->beginTransaction();
+    }
+
+    public function commit()
+    {
+        $this->pdo->commit();
+    }
+
+    public function rollback()
+    {
+        $this->pdo->rollback();
     }
 }
