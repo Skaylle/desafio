@@ -4,9 +4,6 @@ namespace App\Controller;
 
 use App\Request\ProductRequest;
 use App\Services\ProductService;
-use Exception;
-use http\Client\Response;
-use HttpResponseException;
 
 class ProductController
 {
@@ -32,7 +29,7 @@ class ProductController
 
     public function store(array $params): ?array
     {
-        return $this->product->create($params);;
+        return $this->product->create($params);
     }
 
     public function update(int $id, array $params)

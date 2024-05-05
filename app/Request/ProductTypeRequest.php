@@ -12,9 +12,10 @@ class ProductTypeRequest
         $object = json_decode(json_encode($data), false);
 
         $validator = v::attribute('tax_id', v::notEmpty()->intType())
-            ->attribute('taxa', v::notEmpty()->positive()->floatVal())
             ->attribute('name', v::notEmpty()->stringType()->length(1, 255))
-            ->attribute('description', v::stringType()->length(1, 500));
+            ->attribute('description', v::stringType()->length(1, 500))
+            ->attribute('prefix', v::notEmpty()->stringType()->length(1, 10));
+        ;
 
         try {
             $validator->assert($object);
@@ -32,11 +33,10 @@ class ProductTypeRequest
                 'description' => [
                     'length' => 'description must have a length between 1 and 500'
                 ],
-                'taxa' => [
-                    'notEmpty' => 'taxa must not be empty',
-                    'floatVal' => 'taxa must be a valid decimal number',
-                    'positive' => 'taxa must be a positive number'
-                ]
+                'prefix' => [
+                    'notEmpty' => 'prefix must not be empty',
+                    'length' => 'prefix must have a length between 1 and 10'
+                ],
             ];
 
             return [

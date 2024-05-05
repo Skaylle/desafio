@@ -6,6 +6,7 @@ use App\Controller\IndexController;
 use App\Controller\ProductController;
 use App\Controller\ProductTypeController;
 use App\Controller\TaxController;
+use App\Controller\TransactionController;
 
 class Router
 {
@@ -48,7 +49,7 @@ class Router
                         ]
                     ],
                     '/transaction' => [
-                        'controller' => TaxController::class,
+                        'controller' => TransactionController::class,
                         'methods' => [
                             'GET' => ['index', 'show'],
                             'POST' => 'store',

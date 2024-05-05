@@ -12,7 +12,8 @@ class TransactionRequest
         $object = json_decode(json_encode($data), false);
 
         $validator = v::attribute('total', v::notEmpty()->positive()->floatVal())
-            ->attribute('total_tax', v::notEmpty()->positive()->floatVal());
+            ->attribute('total_tax', v::notEmpty()->positive()->floatVal())
+            ->attribute('total_product', v::notEmpty()->positive()->floatVal());
 
         try {
             $validator->assert($object);
@@ -28,6 +29,11 @@ class TransactionRequest
                     'notEmpty' => 'total_tax must not be empty',
                     'floatVal' => 'total_tax must be a valid decimal number',
                     'positive' => 'total_tax must be a positive number'
+                ],
+                'total_product' => [
+                    'notEmpty' => 'total_product must not be empty',
+                    'floatVal' => 'total_product must be a valid decimal number',
+                    'positive' => 'total_product must be a positive number'
                 ]
             ];
 
