@@ -13,11 +13,12 @@ class ProductRequest
 
         $validator = v::attribute('product_type_id', v::notEmpty()->intType())
             ->attribute('name', v::notEmpty()->stringType()->length(1, 255))
-            ->attribute('description', v::stringType()->length(1, 500))
+            ->attribute('description', v::stringType()->length(0, 500))
             ->attribute('valor', v::notEmpty()->positive()->floatVal());
 
         try {
             $validator->assert($object);
+
            return ['status' => true];
         } catch (ValidationException $e) {
             $errors = [

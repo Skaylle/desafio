@@ -30,7 +30,7 @@ class Router
                             'DELETE' => 'delete'
                         ]
                     ],
-                    '/product_type' => [
+                    '/product-type' => [
                         'controller' => ProductTypeController::class,
                         'methods' => [
                             'GET' => ['index', 'show'],
@@ -91,22 +91,30 @@ class Router
                     if (is_array($method) && count($method) > 1) {
                         $method = isset($params[2]) ? $method[1] : $method[0];
                     }
-                    if (method_exists($controller, 'validate')) {
-                        $data = file_get_contents('php://input');
-                        $data = json_decode($data, true);
-
-                        if (!$controller->validate($data)['success']) {
-                            return $controller->validate($data);
-                        }
-                    }
 
                     if ($method !== null && method_exists($controller, $method)) {
                         switch ($method) {
                             case 'store':
                                 $data = file_get_contents('php://input');
                                 $data = json_decode($data, true);
+
+                                if (method_exists($controller, 'validate')) {
+                                    if (!$controller->validate($data)['success']) {
+                                        return $controller->validate($data);
+                                    }
+                                }
+
                                 return $controller->$method($data);
                             case 'update':
+                                if (method_exists($controller, 'validate')) {
+                                    $data = file_get_contents('php://input');
+                                    $data = json_decode($data, true);
+
+                                    if (!$controller->validate($data)['success']) {
+                                        return $controller->validate($data);
+                                    }
+                                }
+
                                 $data = file_get_contents('php://input');
                                 $data = json_decode($data, true);
                                 return $controller->$method($params[2], $data);

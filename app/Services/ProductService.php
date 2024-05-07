@@ -4,8 +4,7 @@ namespace App\Services;
 
 use App\DB;
 use App\Model\Product;
-use App\Model\ProductType;
-use http\Exception\BadQueryStringException;
+use PDO;
 
 class ProductService
 {
@@ -16,12 +15,18 @@ class ProductService
 
     public function __construct()
     {
-       $this->model = new Product();
+        $this->model = new Product();
     }
 
     public function index()
     {
-        return  $this->model->all();
+        $db = DB::connect();
+        $stmt = $db->query("SELECT p.*, pt.name as product_type_label
+                                   FROM products p
+                                   JOIN product_types pt ON pt.id = p.product_type_id                 
+                                   ORDER BY p.id DESC"
+        );
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function find($id)
@@ -31,8 +36,8 @@ class ProductService
 
     public function create(array $data)
     {
-            return $this->model->create(array_merge($data, [
-                'code' => $this->generateCodeProduct($data['product_type_id'])]));
+        return $this->model->create(array_merge($data, [
+            'code' => $this->generateCodeProduct($data['product_type_id'])]));
     }
 
     public function update($id, array $data)
@@ -52,6 +57,8 @@ class ProductService
         $count = $this->model->count();
         $count++;
 
-        return str_pad("{$productType['prefix']}$count", 10, '0', STR_PAD_RIGHT);
+        $number = str_pad("$count", 6, '0', STR_PAD_LEFT);
+
+        return "{$productType['prefix']}{$number}";
     }
 }

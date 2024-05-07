@@ -27,7 +27,7 @@ class Model
 
     public function all()
     {
-        $stmt = $this->pdo->query("SELECT * FROM {$this->table}");
+        $stmt = $this->pdo->query("SELECT * FROM {$this->table} order by id desc");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

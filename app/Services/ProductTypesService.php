@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DB;
 use App\Model\ProductType;
+use PDO;
 
 class ProductTypesService
 {
@@ -19,7 +20,13 @@ class ProductTypesService
 
     public function index()
     {
-        return  $this->model->all();
+        $db = DB::connect();
+        $stmt = $db->query("SELECT pt.*, t.name as tax_label, t.percent
+                                   FROM product_types pt
+                                   JOIN taxes t ON t.id = pt.tax_id                 
+                                   ORDER BY pt.id DESC"
+        );
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function find($id)
