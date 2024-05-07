@@ -14,7 +14,8 @@
   DB_PORT=5050 <br>
   DB_DATABASE=desafio <br>
   DB_USERNAME=us_postgres <br>
-  DB_PASSWORD=us_postgres <br>
+  DB_PASSWORD=us_postgres <br><br>
+- <b>Na pasta database tem um dump do banco para facilitar app/database/backup.sql</b>
 
 Installar o composer
 ```bash
