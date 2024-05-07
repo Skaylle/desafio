@@ -21,9 +21,9 @@ class ProductService
     public function index()
     {
         $db = DB::connect();
-        $stmt = $db->query("SELECT p.*, pt.name as product_type_label
+        $stmt = $db->query("SELECT p.*, pt.name as product_type_label, p.product_type_id
                                    FROM products p
-                                   JOIN product_types pt ON pt.id = p.product_type_id                 
+                                   JOIN product_types pt ON pt.id = p.product_type_id             
                                    ORDER BY p.id DESC"
         );
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DB;
 use App\Model\Transaction;
+use PDO;
 
 class TransactionService
 {
@@ -16,13 +17,26 @@ class TransactionService
 
     public function __construct()
     {
-       $this->model = new Transaction();
-       $this->transactionItemService = new TransactionItemService();
+        $this->model = new Transaction();
+        $this->transactionItemService = new TransactionItemService();
     }
 
     public function index()
     {
-        return  $this->model->all();
+        $db = DB::connect();
+        $stmt = $db->query("SELECT *, to_char(created_at, 'DD/MM/YYYY') as create_fmt FROM transactions order by id desc");
+        $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($transactions as $key => $transaction) {
+            $db = DB::connect();
+            $stmt = $db->query("SELECT *,  products.name as product_label
+                                       FROM transaction_items
+                                       JOIN products ON products.id = transaction_items.product_id
+                                       ");
+            $transactions[$key]['items'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        return $transactions;
     }
 
     public function find($id)
@@ -37,7 +51,7 @@ class TransactionService
             $this->transactionItem($data, $transaction['id']);
 
             return $transaction;
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
 
         }
     }
@@ -55,9 +69,9 @@ class TransactionService
     public function transactionItem($data, $id)
     {
         foreach ($data['transaction'] as $transaction) {
-            if($transaction['transaction_item_id']) {
+            if ($transaction['transaction_item_id']) {
                 $this->transactionItemService->update($transaction['transaction_item_id'], $transaction);
-            }else{
+            } else {
                 $transaction['transaction_id'] = $id;
                 $this->transactionItemService->create($transaction);
             }
