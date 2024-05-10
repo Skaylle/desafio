@@ -32,6 +32,7 @@ class TransactionService
             $stmt = $db->query("SELECT *,  products.name as product_label
                                        FROM transaction_items
                                        JOIN products ON products.id = transaction_items.product_id
+                                       WHERE transaction_id = {$transaction['id']} 
                                        ");
             $transactions[$key]['items'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
@@ -41,7 +42,18 @@ class TransactionService
 
     public function find($id)
     {
-        return $this->model->find($id);
+        $db = DB::connect();
+        $stmt = $db->query("SELECT *, to_char(created_at, 'DD/MM/YYYY') as create_fmt FROM transactions where id = {$id}");
+        $transactions = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $itemsStmt = $db->query("SELECT *,  products.name as product_label
+                               FROM transaction_items
+                               JOIN products ON products.id = transaction_items.product_id
+                               WHERE transaction_id = {$id}
+                               ");
+        $transactions['items'] = $itemsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $transactions;
     }
 
     public function create(array $data)
@@ -58,7 +70,13 @@ class TransactionService
 
     public function update($id, array $data)
     {
-        return $this->model->update($id, $data);
+        try {
+            $transaction = $this->model->update($id, $data);
+            $this->transactionItem($data, $transaction['id']);
+            return $transaction;
+        } catch (\Exception $e) {
+
+        }
     }
 
     public function delete($id): bool
@@ -67,7 +85,7 @@ class TransactionService
             $this->deleteItem($id);
 
             return $this->model->destroy($id);
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return false;
         }
     }
@@ -75,8 +93,8 @@ class TransactionService
     public function transactionItem($data, $id)
     {
         foreach ($data['transaction'] as $transaction) {
-            if ($transaction['transaction_item_id']) {
-                $this->transactionItemService->update($transaction['transaction_item_id'], $transaction);
+            if ($transaction['id']) {
+                $this->transactionItemService->update($transaction['id'], $transaction);
             } else {
                 $transaction['transaction_id'] = $id;
                 $this->transactionItemService->create($transaction);
@@ -87,7 +105,7 @@ class TransactionService
     public function deleteItem($id)
     {
         $db = DB::connect();
-        $stmt = $db->query("SELECT id FROM transaction_items where transaction_id = ?", [$id]);
+        $stmt = $db->query("SELECT id FROM transaction_items where transaction_id = {$id}");
         $item = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($item as $value) {
