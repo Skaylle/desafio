@@ -63,7 +63,13 @@ class TransactionService
 
     public function delete($id): bool
     {
-        return $this->model->destroy($id);
+        try {
+            $this->deleteItem($id);
+
+            return $this->model->destroy($id);
+        }catch (\Exception $exception){
+            return false;
+        }
     }
 
     public function transactionItem($data, $id)
@@ -75,6 +81,17 @@ class TransactionService
                 $transaction['transaction_id'] = $id;
                 $this->transactionItemService->create($transaction);
             }
+        }
+    }
+
+    public function deleteItem($id)
+    {
+        $db = DB::connect();
+        $stmt = $db->query("SELECT id FROM transaction_items where transaction_id = ?", [$id]);
+        $item = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($item as $value) {
+            $this->transactionItemService->delete($value['id']);
         }
     }
 }
