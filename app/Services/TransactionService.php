@@ -58,6 +58,8 @@ class TransactionService
 
     public function create(array $data)
     {
+        $data = $this->dataFormatter($data);
+
         try {
             $transaction = $this->model->create($data);
             $this->transactionItem($data, $transaction['id']);
@@ -70,6 +72,7 @@ class TransactionService
 
     public function update($id, array $data)
     {
+        $data = $this->dataFormatter($data);
         try {
             $transaction = $this->model->update($id, $data);
             $this->transactionItem($data, $transaction['id']);
@@ -111,5 +114,26 @@ class TransactionService
         foreach ($item as $value) {
             $this->transactionItemService->delete($value['id']);
         }
+    }
+
+    private function dataFormatter(array $arrData): array
+    {
+          foreach ($arrData['transaction'] as $key => $data) {
+              $data['total'] = $this->convertCurrencyToNumeric($data['total']);
+              $data['subtotal'] = $this->convertCurrencyToNumeric($data['subtotal']);
+
+              $arrData['transaction'][$key] = $data;
+        }
+
+
+        return $arrData;
+    }
+
+    private function convertCurrencyToNumeric($value): float
+    {
+        $numeric_value = str_replace(array('R$', '.'), '', $value);
+        $numeric_value = str_replace(',', '.', $numeric_value);
+        $numeric_value = floatval($numeric_value);
+        return round($numeric_value, 2);
     }
 }
