@@ -95,12 +95,26 @@ class TransactionService
 
     public function transactionItem($data, $id)
     {
+        $existingItems = $this->transactionItemService->findByTransactionId($id);
+
+        $existingItemIds = [];
+
         foreach ($data['transaction'] as $transaction) {
-            if ($transaction['id']) {
-                $this->transactionItemService->update($transaction['id'], $transaction);
+            $exists = $this->transactionItemService->find($transaction['id']);
+
+            if ($exists) {
+                $this->transactionItemService->update($exists['id'], $transaction);
+                $existingItemIds[] = $transaction['id'];
             } else {
                 $transaction['transaction_id'] = $id;
-                $this->transactionItemService->create($transaction);
+                $save = $this->transactionItemService->create($transaction);
+                $existingItemIds[] = $save['id'];
+            }
+        }
+
+        foreach ($existingItems as $existingItem) {
+            if (!in_array($existingItem['id'], $existingItemIds)) {
+                $this->transactionItemService->delete($existingItem['id']);
             }
         }
     }

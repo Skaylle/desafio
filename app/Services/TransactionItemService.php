@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\DB;
 use App\Model\TransactionItem;
+use PDO;
 
 class TransactionItemService
 {
@@ -39,5 +41,12 @@ class TransactionItemService
     public function delete($id): bool
     {
         return $this->model->destroy($id);
+    }
+
+    public function findByTransactionId($id)
+    {
+        $db = DB::connect();
+        $stmt = $db->query("SELECT * FROM transaction_items where transaction_id = {$id}");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
