@@ -66,7 +66,9 @@ class TransactionService
 
             return $transaction;
         } catch (\Exception $e) {
-
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+            exit();
         }
     }
 
@@ -78,7 +80,9 @@ class TransactionService
             $this->transactionItem($data, $transaction['id']);
             return $transaction;
         } catch (\Exception $e) {
-
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+            exit();
         }
     }
 
